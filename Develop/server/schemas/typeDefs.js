@@ -1,47 +1,45 @@
-const typeDefs = `#graphql
+const { gql } = require('apollo-server');
+
+// Define los tipos de datos y las operaciones admitidas por el esquema GraphQL
+const typeDefs = gql`
   type User {
-    _id: ID
-    username: String
-    email: String
-    password: String
-    thoughts: [Thought]!
+    _id: ID!
+    username: String!
+    email: String!
+    # Otros campos del usuario según tus necesidades
+    savedBooks: [Book]
   }
 
-  type Thought {
-    _id: ID
-    thoughtText: String
-    thoughtAuthor: String
-    createdAt: String
-    comments: [Comment]!
+  type Book {
+    bookId: ID!
+    title: String!
+    author: String!
+    # Otros campos del libro según tus necesidades
   }
 
-  type Comment {
-    _id: ID
-    commentText: String
-    commentAuthor: String
-    createdAt: String
-  }
-
-  type Auth {
-    token: ID!
-    user: User
+  type AuthPayload {
+    token: String!
+    user: User!
   }
 
   type Query {
-    users: [User]
-    user(username: String!): User
-    thoughts(username: String): [Thought]
-    thought(thoughtId: ID!): Thought
     me: User
+    # Otras consultas que puedas necesitar, como obtener libros, etc.
   }
 
   type Mutation {
-    addUser(username: String!, email: String!, password: String!): Auth
-    login(email: String!, password: String!): Auth
-    addThought(thoughtText: String!): Thought
-    addComment(thoughtId: ID!, commentText: String!): Thought
-    removeThought(thoughtId: ID!): Thought
-    removeComment(thoughtId: ID!, commentId: ID!): Thought
+    addUser(username: String!, email: String!, password: String!): AuthPayload
+    login(usernameOrEmail: String!, password: String!): AuthPayload
+    saveBook(bookData: BookInput!): User
+    removeBook(bookId: ID!): User
+    # Otras mutaciones que puedas necesitar
+  }
+
+  input BookInput {
+    bookId: ID!
+    title: String!
+    author: String!
+    # Otros campos del libro según tus necesidades
   }
 `;
 
