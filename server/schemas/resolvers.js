@@ -1,45 +1,48 @@
+const { AuthenticationError } = require("apollo-server-express");
 const { User } = require('../models');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
   Query: {
-    // Obtener un usuario por su ID o nombre de usuario
-    async me(_, args, context) {
+    me: async (parent, args, context) => {
       if (context.user) {
-        const foundUser = await User.findOne({ _id: context.user._id }).populate('savedBooks');
-        return foundUser;
+        const userData = await User
+          .findById(context.user._id)
+          .select("-__v -password")
+          .populate("books");
+
+        return userData;
       }
-      throw new Error('You are not authenticated!');
-    },
-  },
+      throw new AuthenticationError("You must be logged in!");
+    }
+  }, 
+
   Mutation: {
     // Crear un nuevo usuario
-    async addUser(_, { username, email, password }) {
+    addUser: async (_, { username, email, password }) => {
       const user = await User.create({ username, email, password });
       const token = signToken(user);
       return { token, user };
     },
-    // Iniciar sesión de usuario
-    async login(_, { usernameOrEmail, password }) {
-      const user = await User.findOne({
-        $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
-      });
 
+    // Iniciar sesión de usuario
+    login: async (_, { email, password }) => {
+      const user = await User.findOne({ email });
       if (!user) {
-        throw new Error("Can't find this user");
+        throw new AuthenticationError("Incorrect login credentials!");
       }
 
-      const correctPw = await user.isCorrectPassword(password);
-
-      if (!correctPw) {
-        throw new Error('Wrong password!');
+      const correctPW = await user.isCorrectPassword(password);
+      if (!correctPW) {
+        throw new AuthenticationError("Incorrect login credentials!");
       }
 
       const token = signToken(user);
       return { token, user };
     },
+      
     // Guardar un libro en los libros guardados del usuario
-    async saveBook(_, { bookData }, context) {
+    saveBook: async (_, { bookData }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
@@ -49,10 +52,11 @@ const resolvers = {
 
         return updatedUser;
       }
-      throw new Error('You are not authenticated!');
+      throw new AuthenticationError('You are not authenticated!');
     },
+
     // Eliminar un libro de los libros guardados del usuario
-    async removeBook(_, { bookId }, context) {
+    removeBook: async (_, { bookId }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
@@ -65,9 +69,9 @@ const resolvers = {
         }
         return updatedUser;
       }
-      throw new Error('You are not authenticated!');
-    },
-  },
+      throw new AuthenticationError('You are not authenticated!');
+    }
+  }
 };
 
 module.exports = resolvers;

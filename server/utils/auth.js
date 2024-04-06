@@ -13,7 +13,7 @@ module.exports = {
   }),
 
   // Function for our authenticated routes
-  authMiddleware: function ({ req, res }, next) {
+  authMiddleware: function ({ req, }, ) {
     // Extract token from the authorization header
     const authorization = req.headers.authorization;
     
