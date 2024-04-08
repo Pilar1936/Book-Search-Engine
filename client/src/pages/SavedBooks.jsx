@@ -11,19 +11,16 @@ import {
 import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage'; 
+import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-  // Use useQuery hook to execute the GET_ME query
-  const { loading, data } = useQuery(GET_ME,{
+  const { loading, data } = useQuery(GET_ME, {
     fetchPolicy: 'network-only',
   });
-
-  // Use useMutation hook to execute the REMOVE_BOOK mutation
   const [removeBook] = useMutation(REMOVE_BOOK);
 
   if (loading) {
-    return <h2>LOADING...</h2>;
+    return <h2>Loading...</h2>; 
   }
 
   const userData = data?.me || {};
@@ -36,15 +33,17 @@ const SavedBooks = () => {
     }
 
     try {
-      // Execute the REMOVE_BOOK mutation
-      await removeBook({
-        variables: { bookId: bookId }
+      const { data } = await removeBook({
+        variables: { bookId },
       });
 
-      // Remove book's id from localStorage
+      if (!data || !data.removeBook) {
+        throw new Error('Failed to delete book');
+      }
+
       removeBookId(bookId);
     } catch (err) {
-      console.error(err);
+      console.error(err.message);
     }
   };
 
