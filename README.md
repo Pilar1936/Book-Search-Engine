@@ -10,10 +10,19 @@ The application was built using the MERN stack with a React interface, a MongoDB
 
 ![image.](./Assets/scr.PNG)
 
+## Usege
+git clone git@github.com:Pilar1936/Book-Search-Engine.git 
+
+npm install 
+
+npm run dev 
+
 ## Link 
 
-[Link](https://book-search-engine-1-hxc0.onrender.com)
+Web page [Link](https://book-search-engine-1-hxc0.onrender.com)
 
 ## Video
 
-[Link](./Assets/Recording%20#4.mp4)
+The video was made in case the link on the page does not work
+
+This video is intended to demonstrate its functionality.[LINK](https://go.screenpal.com/watch/cZflnmVsggh)
